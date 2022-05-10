@@ -1,0 +1,5 @@
+
+*.xml
+*.pyc
+.ipynb_checkpoints/Notebook-checkpoint.ipynb
+*.iml

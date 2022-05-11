@@ -145,13 +145,12 @@ def wup_relatedness():
 
 def linear_regression(x, y):
     # create matrix
-    matrix_x = np.empty((len(x), 2))
-    matrix_y = np.empty((len(y), 1))
-    # add a column of 1s in x matrix
-    for i in range(0, len(x)):
-        matrix_x[i][0] = 1
-        matrix_x[i][1] = x[i]
-        matrix_y[i][0] = y[i]
+    # steps :
+    # At the beginning, we have y with shape (len(y),)
+    # use [y] to create a matrix with shape (1,len(y))
+    # then, use transpose to reshape it into shape (len(y),1)
+    matrix_y = np.transpose([y])
+    matrix_x = np.stack((np.ones(np.shape(x)[0]), x),axis=-1)
     # use formula
     result = np.matrix(matrix_x.T @ matrix_x).I @ matrix_x.T @ matrix_y
     print('fit_Wh: ')

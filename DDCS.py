@@ -171,10 +171,10 @@ def regularised(x, y, sigma, lam=1):
         matrix_y[i][0] = y[i]
 
     # get reg
-    reg = sigma**2
+    reg = sigma ** 2
     # get diagonal matrix
     diagonal = np.eye(matrix_x.shape[1])
-    diagonal = reg*lam*diagonal
+    diagonal = reg * lam * diagonal
 
     # use formula
     result = np.matrix(matrix_x.T @ matrix_x + diagonal).I @ matrix_x.T @ matrix_y
@@ -182,3 +182,19 @@ def regularised(x, y, sigma, lam=1):
     print(result)
     print('Equation: y = {} + {} x'.format(result[0, 0], result[1, 0]))
     return result[0, 0], result[1, 0]
+
+
+def classification_MLE_two_class(l0, l1):
+    likelihood = 0
+    for i in l0:
+        likelihood = likelihood + (-np.log(1 + np.e**i))
+    for j in l1:
+        likelihood = likelihood + (-np.log(1 + np.e**(-j)))
+    print('Log-Likelihood: {}'.format(likelihood))
+    return likelihood
+
+
+def weight_calculator(distance, b):
+    weight = np.e**(-distance/(2*b))
+    print('Weight: {}'.format(weight))
+    return weight

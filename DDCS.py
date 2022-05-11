@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def statistic(x):
@@ -198,3 +199,50 @@ def weight_calculator(distance, b):
     weight = np.e**(-distance/(2*b))
     print('Weight: {}'.format(weight))
     return weight
+
+def logits_to_probabilities(logits):
+    return [1/1+np.exp(-logit) for logit in logits]
+
+# KMEANS RELATED FUNCTIONS
+# a__________________________ START HERE _______________________________a
+
+
+
+def kmeans(X, K):
+    N, D = X.shape
+    X = X[:, None, :]
+    mu = np.random.randn(K, D)
+    while True:
+        print("Clustering")
+        sd = ((X - mu) ** 2).sum(-1)  # sd.shape = (N, K)
+        z = np.argmin(sd, 1)  # z.shape  = (N)
+        q = np.zeros((N,K,1),dtype=int)
+        q[np.arange(N), z, 0] = 1.
+        print(f"loss = {loss(X, z, mu).item()}")
+        plot(X, z, mu)
+        yield None
+
+        print("Calculating Mean")
+        mu = (q * X).sum(0) / q.sum(0)
+        print(f"loss = {loss(X, z, mu).item()}")
+        plot(X, z, mu)
+        yield None
+
+
+def loss(X, z, mu):
+    return ((X - mu[z, :][:, None, :]) ** 2).mean()
+
+
+def plot(X, z, mu):
+    fig, ax = plt.subplots()
+    ax.set_xlim(-2, 2)
+    ax.set_ylim(-2, 2)
+    ax.scatter(X[:, 0, 0], X[:, 0, 1], c=z);
+    ax.scatter(mu[:, 0], mu[:, 1], s=100, c='r', label="cluster centers")
+    ax.legend()
+    print("Centers are: " + str(mu))
+
+
+# a___________________________________end _______________________________a
+
+

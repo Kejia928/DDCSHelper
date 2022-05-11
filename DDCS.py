@@ -151,9 +151,6 @@ def linear_regression(x, y):
     # then, use transpose to reshape it into shape (len(y),1)
     matrix_y = np.transpose([y])
     matrix_x = np.stack((np.ones(np.shape(x)[0]), x),axis=-1)
-    # add a column of 1s in x matrix
-    for i in range(0, len(x)):
-        matrix_y[i][0] = y[i]
     # use formula
     result = np.matrix(matrix_x.T @ matrix_x).I @ matrix_x.T @ matrix_y
     print('fit_Wh: ')

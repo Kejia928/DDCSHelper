@@ -151,7 +151,7 @@ def linear_regression(x, y):
     # use [y] to create a matrix with shape (1,len(y))
     # then, use transpose to reshape it into shape (len(y),1)
     matrix_y = np.transpose([y])
-    matrix_x = np.stack((np.ones(np.shape(x)[0]), x),axis=-1)
+    matrix_x = np.stack((np.ones(np.shape(x)[0]), x), axis=-1)
     # use formula
     result = np.matrix(matrix_x.T @ matrix_x).I @ matrix_x.T @ matrix_y
     print('fit_Wh: ')
@@ -194,17 +194,103 @@ def classification_MLE_two_class(l0, l1):
     return likelihood
 
 
+def KNN(class0, class1, newDatapoint, K):
+    distance_list = []
+    nearest_point = {}
+
+    for i in class0:
+        distance = euclidean_distance(i, newDatapoint)
+        if len(nearest_point) >= K:
+            if np.max(distance_list) > distance:
+                distance_list.remove(np.max(distance_list))
+                distance_list.append(distance)
+                del nearest_point[distance]
+                nearest_point[distance] = 0
+        else:
+            distance_list.append(distance)
+            nearest_point[distance] = 0
+
+    for j in class1:
+        distance = euclidean_distance(j, newDatapoint)
+        if len(nearest_point) >= K:
+            if np.max(distance_list) > distance:
+                distance_list.remove(np.max(distance_list))
+                distance_list.append(distance)
+                del nearest_point[np.max(distance_list)]
+                nearest_point[distance] = 1
+        else:
+            distance_list.append(distance)
+            nearest_point[distance] = 1
+
+    temValues = list(nearest_point.values())
+    values = np.array(temValues)
+
+    zero = 0
+    one = 0
+    for k in range(0, len(values)):
+        if values[k] == 0:
+            zero = zero + 1
+        elif values[k] == 1:
+            one = one + 1
+
+    if one == zero:
+        print("Predict new data point can be in class 0 and class 1")
+    elif one < zero:
+        print("Predict new data point in class0")
+    elif zero < one:
+        print("Predict new data point in class1")
+    return
+
+
 def weight_calculator(distance, b):
     weight = np.e**(-distance/(2*b))
     print('Weight: {}'.format(weight))
     return weight
 
+
+def WNN(class0, class1, newDatapoint, b):
+    weight_list = {}
+    weights = []
+
+    for i in class0:
+        distance = euclidean_distance(i, newDatapoint)
+        weight = weight_calculator(distance, b)
+        weights.append(weight)
+        weight_list[weight] = 0
+
+    for j in class1:
+        distance = euclidean_distance(j, newDatapoint)
+        weight = weight_calculator(distance, b)
+        weights.append(weight)
+        weight_list[weight] = 1
+
+    zero = 0
+    one = 0
+
+    totalWeight = np.sum(weights)
+    for k in weights:
+        if weight_list[k] == 0:
+            zero = zero + (k/totalWeight)
+        elif weight_list[k] == 1:
+            one = one + (k/totalWeight)
+
+    if one == zero:
+        print("Predict new data point can be in class 0 and class 1")
+    elif one < zero:
+        print("Predict new data point in class0")
+    elif zero < one:
+        print("Predict new data point in class1")
+    return
+
+
 def logits_to_probabilities(logits):
-    return [1/1+np.exp(-logit) for logit in logits]
+    p = [1/1+np.exp(-logit) for logit in logits]
+    print('Probability: {}'.format(p))
+    return p
+
 
 # KMEANS RELATED FUNCTIONS
 # a__________________________ START HERE _______________________________a
-
 
 
 def kmeans(X, K):
@@ -215,7 +301,7 @@ def kmeans(X, K):
         print("Clustering")
         sd = ((X - mu) ** 2).sum(-1)  # sd.shape = (N, K)
         z = np.argmin(sd, 1)  # z.shape  = (N)
-        q = np.zeros((N,K,1),dtype=int)
+        q = np.zeros((N, K, 1), dtype=int)
         q[np.arange(N), z, 0] = 1.
         print(f"loss = {loss(X, z, mu).item()}")
         plot(X, z, mu)
@@ -236,12 +322,10 @@ def plot(X, z, mu):
     fig, ax = plt.subplots()
     ax.set_xlim(-2, 2)
     ax.set_ylim(-2, 2)
-    ax.scatter(X[:, 0, 0], X[:, 0, 1], c=z);
+    ax.scatter(X[:, 0, 0], X[:, 0, 1], c=z)
     ax.scatter(mu[:, 0], mu[:, 1], s=100, c='r', label="cluster centers")
     ax.legend()
     print("Centers are: " + str(mu))
 
 
 # a___________________________________end _______________________________a
-
-

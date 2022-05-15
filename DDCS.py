@@ -358,8 +358,8 @@ def loss(X, z, mu):
 
 def plot(X, z, mu):
     fig, ax = plt.subplots()
-    ax.set_xlim(-2, 2)
-    ax.set_ylim(-2, 2)
+    ax.set_xlim(-10, 10)
+    ax.set_ylim(-10, 10)
     ax.scatter(X[:, 0, 0], X[:, 0, 1], c=z)
     ax.scatter(mu[:, 0], mu[:, 1], s=100, c='r', label="cluster centers")
     ax.legend()

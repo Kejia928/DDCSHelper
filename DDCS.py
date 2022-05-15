@@ -1,5 +1,8 @@
+import math
+
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.signal import convolve2d
 
 
 def statistic(x):
@@ -19,6 +22,13 @@ def whole_static(x):
     var = np.var(x)
     print('Mean: {}\nMedian: {}\nStandard Deviation: {}\nVariance: {}'.format(mean, median, std, var))
     return mean, median, std, var
+
+
+def eigen_analysis(x):
+    eigenvalue, eigenvector = np.linalg.eig(x)
+    print("Eigenvalues: {}".format(eigenvalue))
+    print("Eigenvectors: {}".format(eigenvector))
+    return eigenvalue, eigenvector
 
 
 def manhattan_distance(x, y):
@@ -187,9 +197,9 @@ def regularised(x, y, sigma, lam=1):
 def classification_MLE_two_class(l0, l1):
     likelihood = 0
     for i in l0:
-        likelihood = likelihood + (-np.log(1 + np.e**i))
+        likelihood = likelihood + (-np.log(1 + np.e ** i))
     for j in l1:
-        likelihood = likelihood + (-np.log(1 + np.e**(-j)))
+        likelihood = likelihood + (-np.log(1 + np.e ** (-j)))
     print('Log-Likelihood: {}'.format(likelihood))
     return likelihood
 
@@ -243,7 +253,7 @@ def KNN(class0, class1, newDatapoint, K):
 
 
 def weight_calculator(distance, b):
-    weight = np.e**(-distance/(2*b))
+    weight = np.e ** (-distance / (2 * b))
     print('Weight: {}'.format(weight))
     return weight
 
@@ -270,9 +280,9 @@ def WNN(class0, class1, newDatapoint, b):
     totalWeight = np.sum(weights)
     for k in weights:
         if weight_list[k] == 0:
-            zero = zero + (k/totalWeight)
+            zero = zero + (k / totalWeight)
         elif weight_list[k] == 1:
-            one = one + (k/totalWeight)
+            one = one + (k / totalWeight)
 
     if one == zero:
         print("Predict new data point can be in class 0 and class 1")
@@ -284,9 +294,37 @@ def WNN(class0, class1, newDatapoint, b):
 
 
 def logits_to_probabilities(logits):
-    p = [1/1+np.exp(-logit) for logit in logits]
+    p = [1 / 1 + np.exp(-logit) for logit in logits]
     print('Probability: {}'.format(p))
     return p
+
+
+def normal_distribution(x, mean, sigma):
+    return np.exp(-1 * ((x - mean) ** 2) / (2 * (sigma ** 2))) / (math.sqrt(2 * np.pi) * sigma)
+
+
+def bayesian_classification(class0, class1, newDataPoint):
+    mean1, sigma1 = np.mean(class0), np.std(class0, ddof=1)
+    x1 = np.linspace(mean1 - 6 * sigma1, mean1 + 6 * sigma1, 100)
+
+    mean2, sigma2 = np.mean(class1), np.std(class1, ddof=1)
+    x2 = np.linspace(mean2 - 6 * sigma2, mean2 + 6 * sigma2, 100)
+
+    y1 = normal_distribution(x1, mean1, sigma1)
+    y2 = normal_distribution(x2, mean2, sigma2)
+
+    plt.plot(x1, y1, 'b', label='Class0')
+    plt.plot(x2, y2, 'r', label='Class1')
+    for point0 in class0:
+        plt.scatter(point0, 0, color='blue')
+    for point1 in class1:
+        plt.scatter(point1, 0, color='red')
+    for newPoint in newDataPoint:
+        plt.scatter(newPoint, 0, color='green')
+    plt.legend()
+    plt.grid()
+    plt.show()
+    return
 
 
 # KMEANS RELATED FUNCTIONS
@@ -320,8 +358,8 @@ def loss(X, z, mu):
 
 def plot(X, z, mu):
     fig, ax = plt.subplots()
-    ax.set_xlim(-2, 2)
-    ax.set_ylim(-2, 2)
+    ax.set_xlim(-10, 10)
+    ax.set_ylim(-10, 10)
     ax.scatter(X[:, 0, 0], X[:, 0, 1], c=z)
     ax.scatter(mu[:, 0], mu[:, 1], s=100, c='r', label="cluster centers")
     ax.legend()
@@ -329,3 +367,24 @@ def plot(X, z, mu):
 
 
 # a___________________________________end _______________________________a
+
+
+def convolution(a, b, dimensions=1):
+    factor = sum([abs(i) for i in np.array(a).flatten()])
+    if dimensions == 1:
+        print("Normalisation factor: 1/{}".format(factor))
+        print("Convolution:")
+        print(np.convolve(a, b, mode='valid'))
+        return factor, np.convolve(a, b, mode='valid')
+    elif dimensions == 2:
+        print("Normalisation factor: 1/{}".format(factor))
+        print("Convolution:")
+        print(convolve2d(a, b, mode='valid'))
+        return factor, convolve2d(a, b, mode='valid')
+
+
+def coVariance(M):  # 数据的每一行是一个样本，每一列是一个特征
+    print("Covariance: ")
+    print(np.cov(M, rowvar=False))
+    return np.cov(M, rowvar=False)
+

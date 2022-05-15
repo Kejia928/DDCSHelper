@@ -1,7 +1,8 @@
+import math
+
 import numpy as np
 import matplotlib.pyplot as plt
-import random
-from random import choice
+from scipy.signal import convolve2d
 
 
 def statistic(x):
@@ -21,6 +22,13 @@ def whole_static(x):
     var = np.var(x)
     print('Mean: {}\nMedian: {}\nStandard Deviation: {}\nVariance: {}'.format(mean, median, std, var))
     return mean, median, std, var
+
+
+def eigen_analysis(x):
+    eigenvalue, eigenvector = np.linalg.eig(x)
+    print("Eigenvalues: {}".format(eigenvalue))
+    print("Eigenvectors: {}".format(eigenvector))
+    return eigenvalue, eigenvector
 
 
 def manhattan_distance(x, y):
@@ -291,6 +299,34 @@ def logits_to_probabilities(logits):
     return p
 
 
+def normal_distribution(x, mean, sigma):
+    return np.exp(-1 * ((x - mean) ** 2) / (2 * (sigma ** 2))) / (math.sqrt(2 * np.pi) * sigma)
+
+
+def bayesian_classification(class0, class1, newDataPoint):
+    mean1, sigma1 = np.mean(class0), np.std(class0, ddof=1)
+    x1 = np.linspace(mean1 - 6 * sigma1, mean1 + 6 * sigma1, 100)
+
+    mean2, sigma2 = np.mean(class1), np.std(class1, ddof=1)
+    x2 = np.linspace(mean2 - 6 * sigma2, mean2 + 6 * sigma2, 100)
+
+    y1 = normal_distribution(x1, mean1, sigma1)
+    y2 = normal_distribution(x2, mean2, sigma2)
+
+    plt.plot(x1, y1, 'b', label='Class0')
+    plt.plot(x2, y2, 'r', label='Class1')
+    for point0 in class0:
+        plt.scatter(point0, 0, color='blue')
+    for point1 in class1:
+        plt.scatter(point1, 0, color='red')
+    for newPoint in newDataPoint:
+        plt.scatter(newPoint, 0, color='green')
+    plt.legend()
+    plt.grid()
+    plt.show()
+    return
+
+
 # KMEANS RELATED FUNCTIONS
 # a__________________________ START HERE _______________________________a
 
@@ -331,47 +367,17 @@ def plot(X, z, mu):
 
 
 # a___________________________________end _______________________________a
-def k_means_e_step(xs):
-    sum = np.zeros_like(xs[0])
-    for x in xs:
-        sum = np.add(sum, x)
-    print(f"E-Step Result: 1/{len(xs)} * {sum}")
-    return sum/len(xs)
 
 
-def k_means_m_step(x, center):
-    return euclidean_distance(x, center)
-
-
-def k_means(xs, k, labels=None):
-    if labels is None:
-        labels = [choice(range(k)) for _ in xs]
-    clusters = {i: [] for i in range(k)}
-    print(clusters)
-    for i, label in enumerate(labels):
-        clusters[label].append(xs[i])
-    print(clusters)
-    centroids = []
-    # E-Step
-    for label, group in clusters.items():
-        centroid = k_means_e_step(group)
-        centroids.append({"label": label, "value": centroid})
-    # M-Step
-    results = []
-    for x in xs:
-        distances = []
-        for centroid in centroids:
-            distance = k_means_m_step(x, centroid["value"])
-            distances.append({"label": centroid["label"], "centroid": centroid["value"], "x": x, "distance": distance**2})
-        new_label = min(distances, key=lambda x: x["distance"])["label"]
-        results.append(
-            {"label": new_label, "x": x}
-        )
-    return results
-
-
-if __name__ == '__main__':
-    # dataSet = [[-4.1], [-3.6], [-3.9], [1.8], [2.4], [1.7]]
-    dataSet = [[-2.1, -3.2], [-3.4, -1.2], [-2.6, -2.7], [3.2, 2.1], [1.2, 3.6], [0.6, 0]]
-    k_means(dataSet, 2)
-
+def convolution(a, b, dimensions=1):
+    factor = sum([abs(i) for i in np.array(a).flatten()])
+    if dimensions == 1:
+        print("Normalisation factor: 1/{}".format(factor))
+        print("Convolution:")
+        print(np.convolve(a, b, mode='valid'))
+        return factor, np.convolve(a, b, mode='valid')
+    elif dimensions == 2:
+        print("Normalisation factor: 1/{}".format(factor))
+        print("Convolution:")
+        print(convolve2d(a, b, mode='valid'))
+        return factor, convolve2d(a, b, mode='valid')

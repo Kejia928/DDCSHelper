@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import random
+from random import choice
 
 
 def statistic(x):
@@ -187,9 +189,9 @@ def regularised(x, y, sigma, lam=1):
 def classification_MLE_two_class(l0, l1):
     likelihood = 0
     for i in l0:
-        likelihood = likelihood + (-np.log(1 + np.e**i))
+        likelihood = likelihood + (-np.log(1 + np.e ** i))
     for j in l1:
-        likelihood = likelihood + (-np.log(1 + np.e**(-j)))
+        likelihood = likelihood + (-np.log(1 + np.e ** (-j)))
     print('Log-Likelihood: {}'.format(likelihood))
     return likelihood
 
@@ -243,7 +245,7 @@ def KNN(class0, class1, newDatapoint, K):
 
 
 def weight_calculator(distance, b):
-    weight = np.e**(-distance/(2*b))
+    weight = np.e ** (-distance / (2 * b))
     print('Weight: {}'.format(weight))
     return weight
 
@@ -270,9 +272,9 @@ def WNN(class0, class1, newDatapoint, b):
     totalWeight = np.sum(weights)
     for k in weights:
         if weight_list[k] == 0:
-            zero = zero + (k/totalWeight)
+            zero = zero + (k / totalWeight)
         elif weight_list[k] == 1:
-            one = one + (k/totalWeight)
+            one = one + (k / totalWeight)
 
     if one == zero:
         print("Predict new data point can be in class 0 and class 1")
@@ -284,7 +286,7 @@ def WNN(class0, class1, newDatapoint, b):
 
 
 def logits_to_probabilities(logits):
-    p = [1/1+np.exp(-logit) for logit in logits]
+    p = [1 / 1 + np.exp(-logit) for logit in logits]
     print('Probability: {}'.format(p))
     return p
 
@@ -329,3 +331,47 @@ def plot(X, z, mu):
 
 
 # a___________________________________end _______________________________a
+def k_means_e_step(xs):
+    sum = np.zeros_like(xs[0])
+    for x in xs:
+        sum = np.add(sum, x)
+    print(f"E-Step Result: 1/{len(xs)} * {sum}")
+    return sum/len(xs)
+
+
+def k_means_m_step(x, center):
+    return euclidean_distance(x, center)
+
+
+def k_means(xs, k, labels=None):
+    if labels is None:
+        labels = [choice(range(k)) for _ in xs]
+    clusters = {i: [] for i in range(k)}
+    print(clusters)
+    for i, label in enumerate(labels):
+        clusters[label].append(xs[i])
+    print(clusters)
+    centroids = []
+    # E-Step
+    for label, group in clusters.items():
+        centroid = k_means_e_step(group)
+        centroids.append({"label": label, "value": centroid})
+    # M-Step
+    results = []
+    for x in xs:
+        distances = []
+        for centroid in centroids:
+            distance = k_means_m_step(x, centroid["value"])
+            distances.append({"label": centroid["label"], "centroid": centroid["value"], "x": x, "distance": distance**2})
+        new_label = min(distances, key=lambda x: x["distance"])["label"]
+        results.append(
+            {"label": new_label, "x": x}
+        )
+    return results
+
+
+if __name__ == '__main__':
+    # dataSet = [[-4.1], [-3.6], [-3.9], [1.8], [2.4], [1.7]]
+    dataSet = [[-2.1, -3.2], [-3.4, -1.2], [-2.6, -2.7], [3.2, 2.1], [1.2, 3.6], [0.6, 0]]
+    k_means(dataSet, 2)
+

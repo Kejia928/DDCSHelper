@@ -381,3 +381,10 @@ def convolution(a, b, dimensions=1):
         print("Convolution:")
         print(convolve2d(a, b, mode='valid'))
         return factor, convolve2d(a, b, mode='valid')
+
+
+def coVariance(M):  # 数据的每一行是一个样本，每一列是一个特征
+    print("Covariance: ")
+    print(np.cov(M, rowvar=False))
+    return np.cov(M, rowvar=False)
+

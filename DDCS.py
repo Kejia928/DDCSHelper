@@ -2,6 +2,7 @@ import math
 
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.stats
 from scipy.signal import convolve2d
 
 

@@ -212,9 +212,9 @@ def KNN(class0, class1, newDatapoint, K):
         distance = euclidean_distance(i, newDatapoint)
         if len(nearest_point) >= K:
             if np.max(distance_list) > distance:
+                del nearest_point[np.max(distance_list)]
                 distance_list.remove(np.max(distance_list))
                 distance_list.append(distance)
-                del nearest_point[distance]
                 nearest_point[distance] = 0
         else:
             distance_list.append(distance)
@@ -224,9 +224,9 @@ def KNN(class0, class1, newDatapoint, K):
         distance = euclidean_distance(j, newDatapoint)
         if len(nearest_point) >= K:
             if np.max(distance_list) > distance:
+                del nearest_point[np.max(distance_list)]
                 distance_list.remove(np.max(distance_list))
                 distance_list.append(distance)
-                del nearest_point[np.max(distance_list)]
                 nearest_point[distance] = 1
         else:
             distance_list.append(distance)
@@ -388,3 +388,13 @@ def coVariance(M):  # 数据的每一行是一个样本，每一列是一个特�
     print(np.cov(M, rowvar=False))
     return np.cov(M, rowvar=False)
 
+
+def sum_square_error(y, y_hat):
+    if len(y) != len(y_hat):
+        print("Length not same")
+        return
+    error = 0
+    for i in range(len(y)):
+        error = error + ((y[i] - y_hat[i]) ** 2)
+    print('Error: {}'.format(error))
+    return error
